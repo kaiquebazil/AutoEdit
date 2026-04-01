@@ -29,7 +29,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
-    logger.info("Starting Video Silence Cutter API", version=settings.API_VERSION)
+    logger.info(f"Starting Video Silence Cutter API v{settings.API_VERSION}")
 
     # Ensure upload directory exists
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
@@ -178,10 +178,8 @@ async def process_video(
     try:
         # Save uploaded file
         logger.info(
-            "Saving upload",
-            filename=file.filename,
-            content_type=file.content_type,
-            size=file.size if hasattr(file, 'size') else 'unknown'
+            f"Saving upload: {file.filename} ({file.content_type}, "
+            f"{getattr(file, 'size', 'unknown')} bytes)"
         )
 
         content = await file.read()
@@ -198,11 +196,8 @@ async def process_video(
 
         # Process video
         logger.info(
-            "Starting processing",
-            threshold_db=threshold_db,
-            silence_duration=silence_duration,
-            padding=padding,
-            keep_codec=keep_codec
+            f"Starting processing: threshold={threshold_db}dB, "
+            f"silence_duration={silence_duration}s, padding={padding}s, keep_codec={keep_codec}"
         )
 
         processor = VideoProcessor(
@@ -232,9 +227,8 @@ async def process_video(
 
         # Return processed video
         logger.info(
-            "Processing complete",
-            time_saved=result.get("time_saved_sec"),
-            cuts=result.get("cuts_made")
+            f"Processing complete: time_saved={result.get('time_saved_sec')}s, "
+            f"cuts={result.get('cuts_made')}"
         )
 
         return FileResponse(
@@ -267,9 +261,9 @@ async def process_video(
             try:
                 if path.exists():
                     path.unlink()
-                    logger.debug("Cleaned up file", path=str(path))
+                    logger.debug(f"Cleaned up file: {path}")
             except Exception as e:
-                logger.warning("Failed to cleanup file", path=str(path), error=str(e))
+                logger.warning(f"Failed to cleanup file {path}: {e}")
 
 
 @app.get("/process-video/stream")
@@ -306,6 +300,6 @@ async def cleanup_uploads():
                 os.remove(file_path)
                 deleted_count += 1
         except Exception as e:
-            logger.warning("Failed to delete file", path=file_path, error=str(e))
+            logger.warning(f"Failed to delete file {file_path}: {e}")
 
     return {"deleted_files": deleted_count}
