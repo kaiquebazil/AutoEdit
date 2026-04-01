@@ -1,0 +1,17 @@
+# Backend - FastAPI Video Processing API
+# Python 3.10+
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.17
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+
+# CORS Middleware
+starlette>=0.41.0
+
+# Video Processing
+ffmpeg-python>=0.2.0
+
+# Async Support
+aiofiles>=24.1.0
